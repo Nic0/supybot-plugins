@@ -42,9 +42,9 @@ import csv
 import time
 import random
 
-CHANNEL = '#sweet#'
+CHANNEL = '#salon'
 MAX_LETTERS = 9
-LAPS_TIME = 30
+LAPS_TIME = 120
 
 class Scrabble(callbacks.Plugin):
     """Add the help for "@plugin help Scrabble" here
@@ -94,6 +94,7 @@ class Scrabble(callbacks.Plugin):
     def start (self, irc, msg, args):
         if self.started:
             return
+        self.no_answer = 0
         self._parse_dictionnary(irc)
         self.started = True
         self._run_game(irc)
@@ -135,8 +136,8 @@ class Scrabble(callbacks.Plugin):
                 self.no_answer = 0
                 self._display_best_try(irc)
                 self._best_word(irc)
-                self._display_top(irc)
                 self._update_score_db()
+                self._display_top(irc)
                 self._init_tries()
             else:
                 self.no_answer += 1
@@ -170,6 +171,7 @@ class Scrabble(callbacks.Plugin):
                             match = True
                         data.append(item)
                     if not match:
+                        i += 1
                         data.append([self.tries['nick'], self.tries['score']])
         except IOError:
             return
@@ -243,17 +245,16 @@ class Scrabble(callbacks.Plugin):
         max_score = 0
         best_word = ''
         for word in self.words:
-            w = list(word)
-            h = list(self.hand)
-            try:
-                for i in w:
-                    h.remove(w.pop())
+            valid = True
+            for letter in list(word):
+                if word.count(letter) > self.hand.count(letter):
+                    valid = False
+                    break
+            if valid:
                 score = self._count_points(word)
                 if score > max_score:
                     max_score = score
                     best_word = word
-            except:
-                pass
 
         irc.queueMsg(ircmsgs.privmsg(CHANNEL, 
                     'Meilleur mot trouvé: %s, %s points' % (best_word, max_score)))
