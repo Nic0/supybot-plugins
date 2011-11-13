@@ -42,7 +42,7 @@ import csv
 import time
 import random
 
-CHANNEL = '#salon'
+CHANNEL = '#sweet#'
 MAX_LETTERS = 9
 LAPS_TIME = 30
 
@@ -81,7 +81,7 @@ class Scrabble(callbacks.Plugin):
         }
 
     def doPrivmsg (self, irc, msg):
-        if self.started and msg.args[0] == '#testalacon'\
+        if self.started and msg.args[0] == CHANNEL\
             and len(msg.args[1].split(' ')) is 1:
             word = msg.args[1].upper()
             if self._is_valid_word(word):
